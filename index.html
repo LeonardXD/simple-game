@@ -1,1 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Homepage</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Inter font from Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Custom background color for the body */
+        body {
+            background-color: #800080; /* Purple color as requested */
+            font-family: 'Inter', sans-serif; /* Using Inter font */
+            color: white; /* Default text color for the body */
+            min-height: 100vh; /* Ensure body takes full viewport height */
+            display: flex; /* Use flexbox for centering content */
+            flex-direction: column; /* Stack header and main vertically */
+            justify-content: center; /* Center content vertically */
+            align-items: center; /* Center content horizontally */
+            padding: 1rem; /* Add some padding around the edges */
+        }
+        /* Style for the close button icon */
+        .close-icon {
+            font-size: 1.5rem;
+            line-height: 1;
+            cursor: pointer;
+            color: #ccc;
+            transition: color 0.2s ease-in-out;
+        }
+        .close-icon:hover {
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
 
+    <!-- Header Section -->
+    <header class="text-center mb-8">
+        <h1 id="greeting-message" class="text-4xl sm:text-5xl md:text-6xl font-bold rounded-lg p-4 bg-purple-900 bg-opacity-70 shadow-lg">
+            <!-- Greeting message and icon will be inserted here by JavaScript -->
+        </h1>
+    </header>
+
+    <!-- Main Content Section with Buttons -->
+    <main class="flex flex-col items-center space-y-6 w-full max-w-md">
+        <button id="startButton" class="bg-purple-700 hover:bg-purple-600 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105 w-full text-lg">
+            Start Playing
+        </button>
+        <button id="viewAchievementsButton" class="bg-purple-700 hover:bg-purple-600 text-white font-bold py-3 px-8 rounded-full shadow-lg transition duration-300 ease-in-out transform hover:scale-105 w-full text-lg">
+            View Achievements
+        </button>
+    </main>
+
+    <!-- Achievements Modal (Hidden by default) -->
+    <div id="achievementsModal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-purple-800 rounded-lg shadow-xl p-6 w-full max-w-lg relative transform transition-all sm:my-8 sm:w-full sm:max-w-md">
+            <!-- Close Button -->
+            <button id="closeAchievementsModalButton" class="absolute top-3 right-3 text-white hover:text-gray-300 transition duration-200">
+                <span class="close-icon">&times;</span>
+            </button>
+            <h2 class="text-3xl font-bold text-center mb-6 text-white">Your Achievements</h2>
+
+            <!-- Achievements List -->
+            <ul id="achievementsList" class="space-y-4">
+                <!-- Achievements will be dynamically loaded here by JavaScript -->
+            </ul>
+        </div>
+    </div>
+
+    <!-- Quiz Modal (Hidden by default) -->
+    <div id="quizModal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-purple-800 rounded-lg shadow-xl p-6 w-full max-w-xl relative flex flex-col gap-6">
+            <!-- Exit Button -->
+            <button id="exitQuizButton" class="absolute top-3 right-3 text-white hover:text-gray-300 transition duration-200 text-sm py-1 px-3 rounded-full border border-white hover:border-gray-300">
+                Exit Quiz
+            </button>
+
+            <!-- Question Counter and Timer -->
+            <div class="flex justify-between items-center text-xl font-semibold mb-4">
+                <span id="questionCounter">Question 1/5</span>
+                <span id="quizTimer">10s</span>
+            </div>
+
+            <!-- Question Content -->
+            <p id="quizQuestion" class="text-2xl font-semibold text-center mb-6 leading-relaxed">
+                <!-- Question text will be inserted here -->
+            </p>
+
+            <!-- Options Container -->
+            <div id="quizOptions" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Options buttons will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Quiz Confirmation Modal (Hidden by default) -->
+    <div id="quizConfirmationModal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-purple-800 rounded-lg shadow-xl p-6 w-full max-w-sm text-center">
+            <h3 class="text-2xl font-bold mb-4">Exit Quiz?</h3>
+            <p class="text-lg mb-6">Exiting will not save your progress. Are you sure?</p>
+            <div class="flex justify-center space-x-4">
+                <button id="confirmExitButton" class="bg-red-600 hover:bg-red-500 text-white font-bold py-2 px-6 rounded-full transition duration-200 ease-in-out transform hover:scale-105">
+                    Yes, Exit
+                </button>
+                <button id="cancelExitButton" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-6 rounded-full transition duration-200 ease-in-out transform hover:scale-105">
+                    No, Continue
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quiz Result Modal (Hidden by default) -->
+    <div id="quizResultModal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50 hidden">
+        <div class="bg-purple-800 rounded-lg shadow-xl p-6 w-full max-w-md text-center">
+            <h3 id="resultGreeting" class="text-3xl font-bold mb-4"></h3>
+            <p class="text-xl mb-6">You scored <span id="finalScore" class="font-extrabold text-purple-200"></span> out of <span id="totalQuestions" class="font-extrabold text-purple-200"></span> questions!</p>
+            <div class="flex flex-col space-y-4 mt-6">
+                <button id="playAgainButton" class="bg-purple-700 hover:bg-purple-600 text-white font-bold py-2 px-6 rounded-full shadow-lg transition duration-200 ease-in-out transform hover:scale-105">
+                    Play Again
+                </button>
+                <button id="backToHomeButton" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-6 rounded-full shadow-lg transition duration-200 ease-in-out transform hover:scale-105">
+                    Back to Home
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- Global State Variables ---
+        let achievements = [
+            { id: 1, name: "Get perfect score on the quiz", completed: false }
+        ];
+
+        const quizQuestions = [
+            {
+                question: "What is 2 + 2?",
+                options: ["3", "4", "5", "6"],
+                answer: "4" // Internal answer for scoring
+            },
+            {
+                question: "Which planet is known as the Red Planet?",
+                options: ["Earth", "Mars", "Jupiter", "Venus"],
+                answer: "Mars"
+            },
+            {
+                question: "What is the capital of France?",
+                options: ["London", "Berlin", "Paris", "Rome"],
+                answer: "Paris"
+            },
+            {
+                question: "What is the largest ocean on Earth?",
+                options: ["Atlantic", "Indian", "Arctic", "Pacific"],
+                answer: "Pacific"
+            },
+            {
+                question: "How many continents are there?",
+                options: ["5", "6", "7", "8"],
+                answer: "7"
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let quizTimerInterval = null; // Initialize to null, crucial for bug fix
+        let timeLeft = 10; // Initial time for each question
+
+        // --- DOM Element References ---
+        const greetingElement = document.getElementById('greeting-message');
+        const achievementsModal = document.getElementById('achievementsModal');
+        const viewAchievementsButton = document.getElementById('viewAchievementsButton');
+        const closeAchievementsModalButton = document.getElementById('closeAchievementsModalButton');
+        const achievementsList = document.getElementById('achievementsList');
+
+        const startButton = document.getElementById('startButton');
+        const quizModal = document.getElementById('quizModal');
+        const exitQuizButton = document.getElementById('exitQuizButton');
+        const questionCounter = document.getElementById('questionCounter');
+        const quizTimerDisplay = document.getElementById('quizTimer');
+        const quizQuestionElement = document.getElementById('quizQuestion');
+        const quizOptionsContainer = document.getElementById('quizOptions');
+
+        const quizConfirmationModal = document.getElementById('quizConfirmationModal');
+        const confirmExitButton = document.getElementById('confirmExitButton');
+        const cancelExitButton = document.getElementById('cancelExitButton');
+
+        const quizResultModal = document.getElementById('quizResultModal');
+        const resultGreetingElement = document.getElementById('resultGreeting');
+        const finalScoreElement = document.getElementById('finalScore');
+        const totalQuestionsElement = document.getElementById('totalQuestions');
+        const playAgainButton = document.getElementById('playAgainButton');
+        const backToHomeButton = document.getElementById('backToHomeButton');
+
+        // --- Functions ---
+
+        /**
+         * Updates the dynamic greeting message and icon in the header based on the time of day.
+         */
+        function updateGreeting() {
+            const now = new Date();
+            const hours = now.getHours();
+
+            let greetingText = '';
+            let icon = '';
+
+            if (hours >= 0 && hours < 12) {
+                greetingText = 'Hello, Good Morning Loveee!😘';
+                icon = '☀️'; // Sun emoji for morning
+            } else if (hours >= 12 && hours < 18) {
+                greetingText = 'Hello, Good Afternoon Loveee!😘';
+                icon = '☀️'; // Sun emoji for afternoon
+            } else {
+                greetingText = 'Hello, Good Evening Loveee!😘';
+                icon = '🌙'; // Moon emoji for evening
+            }
+            greetingElement.innerHTML = `${icon} ${greetingText}`;
+        }
+
+        /**
+         * Renders the achievements into the achievements modal list.
+         */
+        function renderAchievements() {
+            achievementsList.innerHTML = ''; // Clear existing list
+
+            achievements.forEach(achievement => {
+                const listItem = document.createElement('li');
+                listItem.className = 'flex items-center justify-between bg-purple-700 p-4 rounded-lg shadow-md';
+
+                const completionMark = achievement.completed
+                    ? '<span class="text-green-400 text-2xl" title="Completed">✓</span>' // Checkmark for completed
+                    : '<span class="text-gray-400 text-2xl" title="Not Completed">○</span>'; // Circle for not completed
+
+                listItem.innerHTML = `
+                    <span class="text-lg font-medium">${achievement.name}</span>
+                    ${completionMark}
+                `;
+                achievementsList.appendChild(listItem);
+            });
+        }
+
+        /**
+         * Initializes and displays the quiz.
+         */
+        function startQuiz() {
+            // Ensure any previous timer is stopped before starting a new quiz
+            if (quizTimerInterval) {
+                clearInterval(quizTimerInterval);
+                quizTimerInterval = null; // Reset the variable
+            }
+
+            // Reset quiz state
+            currentQuestionIndex = 0;
+            score = 0;
+            quizModal.classList.remove('hidden'); // Show quiz modal
+            displayQuestion(); // Display the first question
+        }
+
+        /**
+         * Displays the current question and its options, and starts the timer.
+         */
+        function displayQuestion() {
+            // Crucial: Clear any existing timer before setting a new one for this question
+            if (quizTimerInterval) {
+                clearInterval(quizTimerInterval);
+                quizTimerInterval = null; // Reset the variable after clearing
+            }
+
+            timeLeft = 10; // Reset timer for new question
+            quizTimerDisplay.textContent = `${timeLeft}s`;
+
+            if (currentQuestionIndex < quizQuestions.length) {
+                const question = quizQuestions[currentQuestionIndex];
+                questionCounter.textContent = `Question ${currentQuestionIndex + 1}/${quizQuestions.length}`;
+                quizQuestionElement.textContent = question.question;
+                quizOptionsContainer.innerHTML = ''; // Clear previous options
+
+                question.options.forEach(option => {
+                    const button = document.createElement('button');
+                    button.textContent = option;
+                    button.className = 'quiz-option-button bg-purple-700 hover:bg-purple-600 text-white font-bold py-3 px-6 rounded-full shadow-lg transition duration-200 ease-in-out transform hover:scale-105 w-full text-lg text-center hover:ring-2 hover:ring-purple-400 active:scale-95';
+                    button.onclick = () => selectAnswer(option, question.answer);
+                    quizOptionsContainer.appendChild(button);
+                });
+                startQuizTimer(); // Start timer for the new question
+            } else {
+                endQuiz(); // If all questions are answered, end the quiz
+            }
+        }
+
+        /**
+         * Starts the countdown timer for the current question.
+         */
+        function startQuizTimer() {
+            // Defensive check: only start if no timer is already running
+            if (quizTimerInterval === null) {
+                quizTimerInterval = setInterval(() => {
+                    timeLeft--;
+                    quizTimerDisplay.textContent = `${timeLeft}s`;
+                    if (timeLeft <= 0) {
+                        clearInterval(quizTimerInterval);
+                        quizTimerInterval = null; // Crucial: Reset the variable after clearing
+                        selectAnswer(null, quizQuestions[currentQuestionIndex].answer); // Pass null for unanswered
+                    }
+                }, 1000); // Update every second
+            }
+        }
+
+        /**
+         * Handles the user's selected answer, updates score, and moves to the next question.
+         * @param {string|null} selectedOption - The option selected by the user, or null if timed out.
+         * @param {string} correctAnswer - The correct answer for the current question.
+         */
+        function selectAnswer(selectedOption, correctAnswer) {
+            // Crucial: Clear the timer immediately when an answer is selected
+            if (quizTimerInterval) {
+                clearInterval(quizTimerInterval);
+                quizTimerInterval = null; // Reset the variable after clearing
+            }
+
+            if (selectedOption === correctAnswer) {
+                score++; // Increment score if answer is correct
+            }
+            currentQuestionIndex++; // Move to the next question
+            displayQuestion(); // Display the next question or end quiz
+        }
+
+        /**
+         * Ends the quiz, hides the quiz modal, and shows the result modal.
+         */
+        function endQuiz() {
+            // Ensure timer is stopped when quiz ends
+            if (quizTimerInterval) {
+                clearInterval(quizTimerInterval);
+                quizTimerInterval = null; // Reset the variable after clearing
+            }
+
+            quizModal.classList.add('hidden'); // Hide quiz modal
+            quizResultModal.classList.remove('hidden'); // Show result modal
+
+            finalScoreElement.textContent = score;
+            totalQuestionsElement.textContent = quizQuestions.length;
+
+            let resultMessage = '';
+            if (score === quizQuestions.length) {
+                resultMessage = "Congratulations! Perfect Score!";
+                // Update achievement status if a perfect score is achieved
+                const perfectScoreAchievement = achievements.find(a => a.id === 1);
+                if (perfectScoreAchievement) {
+                    perfectScoreAchievement.completed = true;
+                }
+            } else if (score >= quizQuestions.length / 2) {
+                resultMessage = "Great Job! You did well!";
+            } else {
+                resultMessage = "Good Effort! Keep practicing!";
+            }
+            resultGreetingElement.textContent = resultMessage;
+            renderAchievements(); // Update achievements display for potential changes
+        }
+
+        /**
+         * Resets the quiz and goes back to the main homepage.
+         */
+        function backToHome() {
+            quizConfirmationModal.classList.add('hidden'); // Hide confirmation if it's open
+            quizResultModal.classList.add('hidden'); // Hide result modal
+            quizModal.classList.add('hidden'); // Ensure quiz modal is hidden
+
+            // Ensure timer is stopped when going home
+            if (quizTimerInterval) {
+                clearInterval(quizTimerInterval);
+                quizTimerInterval = null; // Reset the variable after clearing
+            }
+            // No need to reset global score/index here as startQuiz will handle it if played again
+        }
+
+        // --- Event Listeners ---
+
+        // View Achievements button
+        viewAchievementsButton.addEventListener('click', () => {
+            renderAchievements();
+            achievementsModal.classList.remove('hidden');
+        });
+
+        // Close Achievements modal button
+        closeAchievementsModalButton.addEventListener('click', () => {
+            achievementsModal.classList.add('hidden');
+        });
+
+        // Close Achievements modal by clicking backdrop
+        achievementsModal.addEventListener('click', (event) => {
+            if (event.target === achievementsModal) {
+                achievementsModal.classList.add('hidden');
+            }
+        });
+
+        // Start Playing button
+        startButton.addEventListener('click', startQuiz);
+
+        // Exit Quiz button (inside quiz modal)
+        exitQuizButton.addEventListener('click', () => {
+            // Stop the timer when the confirmation modal is shown
+            if (quizTimerInterval) {
+                clearInterval(quizTimerInterval);
+                quizTimerInterval = null; // Reset the variable
+            }
+            quizConfirmationModal.classList.remove('hidden'); // Show confirmation modal
+        });
+
+        // Confirm Exit button (inside confirmation modal)
+        confirmExitButton.addEventListener('click', () => {
+            backToHome(); // Go back to homepage
+            quizConfirmationModal.classList.add('hidden'); // Hide confirmation modal
+        });
+
+        // Cancel Exit button (inside confirmation modal)
+        cancelExitButton.addEventListener('click', () => {
+            quizConfirmationModal.classList.add('hidden'); // Hide confirmation modal
+            // Resume quiz timer only if the quiz is still active (not ended)
+            if (currentQuestionIndex < quizQuestions.length) {
+                startQuizTimer(); // Resume quiz timer
+            }
+        });
+
+        // Play Again button (in result modal)
+        playAgainButton.addEventListener('click', () => {
+            quizResultModal.classList.add('hidden'); // Hide result modal
+            startQuiz(); // Restart the quiz
+        });
+
+        // Back to Home button (in result modal)
+        backToHomeButton.addEventListener('click', backToHome);
+
+        // --- Initial Setup on Window Load ---
+        window.onload = () => {
+            updateGreeting(); // Set initial greeting
+            renderAchievements(); // Render achievements (for initial display if modal is opened immediately)
+            quizTimerInterval = null; // Ensure it's null on initial load
+        };
+    </script>
+
+</body>
+</html>
